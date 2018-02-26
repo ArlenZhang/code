@@ -11,7 +11,7 @@ writer = tf.summary.FileWriter('../graphs', tf.get_default_graph())
 with tf.Session() as sess:
     # writer = tf.summary.FileWriter('graphs', sess.graph)
     print(sess.run(x))
-    print(x.eval())  #意味着
+    print(x.eval())  # 意味着
 
 writer.close()
 '''

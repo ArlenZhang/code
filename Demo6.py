@@ -10,8 +10,7 @@ a_shape = tf.shape(a)
 b = a.reshape(-1, 2)  # 转成2列的数据
 
 # 定义自适应匹配的shape
-tags = tf.Variable(107, name="tags")
-bias = tf.get_variable("b", shape=[tags], dtype=tf.float32, initializer=tf.zeros_initializer())
+bias = tf.get_variable("b", shape=[10, 1], dtype=tf.float32, initializer=tf.zeros_initializer())
 bias_shape = bias.shape
 
 with tf.Session() as sess:

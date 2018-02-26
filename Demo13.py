@@ -5,10 +5,8 @@
     Date: 2018.2.1
 """
 import os
-import numpy as np
 import tensorflow as tf
 import tensorflow.contrib.eager as tfe
-import utils
 import word2vec_utils
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # Enable eager execution!
@@ -22,7 +20,7 @@ SKIP_WINDOW = 1   # the context window
 NUM_SAMPLED = 64  # number of negative examples to sample
 LEARNING_RATE = 1.0
 NUM_TRAIN_STEPS = 100000
-VISUAL_FLD = 'visualization'
+VISUAL_FLD = '../visualization'
 SKIP_STEP = 5000
 
 # Parameters for downloading data
@@ -53,12 +51,10 @@ class Word2Vec(object):
                                              num_classes=self.vocab_size))
         return loss
 
-
 def gen():
     yield from word2vec_utils.batch_gen(DOWNLOAD_URL, EXPECTED_BYTES,
                                         VOCAB_SIZE, BATCH_SIZE, SKIP_WINDOW,
                                         VISUAL_FLD)
-
 
 def main():
     dataset = tf.data.Dataset.from_generator(gen, (tf.int32, tf.int32),

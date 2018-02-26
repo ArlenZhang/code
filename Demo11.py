@@ -4,13 +4,12 @@
     date: 2018.1.30
 """
 import os
-import numpy as np
 import tensorflow as tf
 import time
 import utils
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-# Define paramaters for the model
+# Define parameters for the model
 learning_rate = 0.01
 batch_size = 128
 n_epochs = 200
@@ -18,12 +17,11 @@ n_train = 55000
 n_test = 10000
 
 # Step 1: Read in data
-mnist_folder = 'data/mnist'
+mnist_folder = '../data/mnist'
 # utils.download_mnist(mnist_folder)
 
 # 获取到训练集 验证集 测试集的图像 和 前两个的标签信息
 train, val, test = utils.read_mnist(mnist_folder, flatten=True)
-
 
 # Step 2: 创建数据集和
 # create training Dataset and batch it.  train.form : (data[:, 0], data[:, 1])
@@ -77,7 +75,7 @@ correct_preds = tf.equal(tf.argmax(preds, 1), tf.argmax(label, 1))  # 计数树�
 """
 accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
 print(accuracy)
-writer = tf.summary.FileWriter('./graphs/logreg', tf.get_default_graph())
+writer = tf.summary.FileWriter('../graphs/logreg', tf.get_default_graph())
 with tf.Session() as sess:
     start_time = time.time()
     sess.run(tf.global_variables_initializer())

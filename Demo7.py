@@ -14,7 +14,7 @@ import utils
 from advanced_util import huber_loss
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-DATA_FILE = 'data/birth_life_2010.txt'
+DATA_FILE = '../data/birth_life_2010.txt'
 
 # Step 1: read in data from the .txt file
 data, n_samples = utils.read_birth_life_data(DATA_FILE)

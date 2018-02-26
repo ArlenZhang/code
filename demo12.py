@@ -9,7 +9,7 @@ import tensorflow as tf
 import tensorflow.contrib.eager as tfe
 import matplotlib.pyplot as plt
 import utils
-DATA_FILE = 'data/birth_life_2010.txt'
+DATA_FILE = '../data/birth_life_2010.txt'
 # must be called at the very beginning of a TensorFlow program.
 tfe.enable_eager_execution()
 
@@ -68,7 +68,7 @@ class eager_executive:
         plt.legend()
         plt.show()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     e_obj = eager_executive()
     e_obj.train()
     e_obj.draw_plot()
