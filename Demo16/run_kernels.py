@@ -52,17 +52,17 @@ def show_images(images, rgb=True):
 def main():
     rgb = False
     if rgb:
-        kernels_list = [kernels.BLUR_FILTER_RGB, 
-                        kernels.SHARPEN_FILTER_RGB, 
-                        kernels.EDGE_FILTER_RGB,
-                        kernels.TOP_SOBEL_RGB,
-                        kernels.EMBOSS_FILTER_RGB]
+        kernels_list = [kernel.BLUR_FILTER_RGB,
+                        kernel.SHARPEN_FILTER_RGB,
+                        kernel.EDGE_FILTER_RGB,
+                        kernel.TOP_SOBEL_RGB,
+                        kernel.EMBOSS_FILTER_RGB]
     else:
-        kernels_list = [kernels.BLUR_FILTER,
-                        kernels.SHARPEN_FILTER,
-                        kernels.EDGE_FILTER,
-                        kernels.TOP_SOBEL,
-                        kernels.EMBOSS_FILTER]
+        kernels_list = [kernel.BLUR_FILTER,
+                        kernel.SHARPEN_FILTER,
+                        kernel.EDGE_FILTER,
+                        kernel.TOP_SOBEL,
+                        kernel.EMBOSS_FILTER]
 
     kernels_list = kernels_list[1:]
     image = read_one_image('data/friday.jpg')
