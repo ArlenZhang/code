@@ -1,33 +1,65 @@
-""" Using convolutional net on MNIST dataset of handwritten digits
-MNIST dataset: http://yann.lecun.com/exdb/mnist/
-CS 20: "TensorFlow for Deep Learning Research"
-cs20.stanford.edu
-Chip Huyen (chiphuyen@cs.stanford.edu)
-Lecture 07
+"""
+    Using convolutional net on MNIST dataset of handwritten digits
+    MNIST dataset: http://yann.lecun.com/exdb/mnist/
+    Author: ArlenZhang
+    Date: 2018.2.28
 """
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
-import time 
-
+import time
 import tensorflow as tf
-
 import utils
 
-def conv_relu(inputs, filters, k_size, stride, padding, scope_name):
-    '''
-    A method that does convolution + relu on inputs
-    '''
-    #############################
-    ########## TO DO ############
-    #############################
-    return None
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+"""
+    parameters
+        input : 输入图像
+        filters : 过滤器长度
+        k_size : 窗口尺寸
+        stride : 窗口移动步长
+        padding : 是否用0补全空位
+        scope_name : 你懂得
+"""
+def conv_relu(inputs, filters, k_size, stride, padding, scope_name):
+    """
+        A method that does convolution + relu on inputs
+    """
+    with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
+        in_channels = inputs.shape[-1]  # 输入数据，图像input转成一列，所以列数对应的channels, RGB就是三种颜色3列
+        # 初始化kernel数据
+        kernel = tf.get_variable('kernel',
+                                 [k_size, k_size, in_channels, filters],
+                                 initializer=tf.truncated_normal_initializer())
+        bias = tf.get_variable('biases',
+                               [filters],
+                               initializer=tf.random_normal_initializer())
+        # convolution在tensorflow中定义
+        conv = tf.nn.conv2d(inputs,
+                            kernel,
+                            strides=[1, stride, stride, 1],
+                            padding=padding)
+        # relu 规范化过程定义
+        result = tf.nn.relu(conv + bias, name=scope.name)
+    return result
+"""
+    池化层, pooling过程也有convolution的过程
+    parameters
+        inputs : 输入矩阵（上一层Relu之后的结果作为输入）
+        k_size : 窗口尺寸
+        stride : pooling 窗口的步长
+        padding : pooling过程的pad类型
+        scope_name : 你懂得
+"""
 def maxpool(inputs, ksize, stride, padding='VALID', scope_name='pool'):
-    '''A method that does max pooling on inputs'''
-    #############################
-    ########## TO DO ############
-    #############################
-    return None
+    """
+        A method that does max pooling on inputs
+    """
+    with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
+        pool = tf.nn.max_pool(input,
+                              ksize=[1, ksize, ksize, 1],
+                              strides=[1, stride, stride, 1],
+                              padding=padding)
+    return pool
 
 def fully_connected(inputs, out_dim, scope_name='fc'):
     '''

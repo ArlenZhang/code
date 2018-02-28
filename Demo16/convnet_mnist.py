@@ -15,7 +15,7 @@ import utils
 
 def conv_relu(inputs, filters, k_size, stride, padding, scope_name):
     '''
-    A method that does convolution + relu on inputs
+        A method that does convolution + relu on inputs
     '''
     with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
         in_channels = inputs.shape[-1]
