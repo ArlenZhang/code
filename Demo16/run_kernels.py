@@ -10,16 +10,16 @@ import sys
 from matplotlib import gridspec as gridspec
 from matplotlib import pyplot as plt
 import tensorflow as tf
-import kernel
+import kernel as kernels
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 sys.path.append('..')
 
 def read_one_image(filename):
-    '''
+    """
         This method is to show how to read image from a file into a tensor.
         The output is a tensor object.
-    '''
+    """
     image_string = tf.read_file(filename)
     image_decoded = tf.image.decode_image(image_string)
     image = tf.cast(image_decoded, tf.float32) / 256.0
@@ -50,28 +50,28 @@ def show_images(images, rgb=True):
     plt.show()
 
 def main():
-    rgb = False
+    rgb = True
     if rgb:
-        kernels_list = [kernel.BLUR_FILTER_RGB,
-                        kernel.SHARPEN_FILTER_RGB,
-                        kernel.EDGE_FILTER_RGB,
-                        kernel.TOP_SOBEL_RGB,
-                        kernel.EMBOSS_FILTER_RGB]
+        kernels_list = [kernels.BLUR_FILTER_RGB,
+                        kernels.SHARPEN_FILTER_RGB,
+                        kernels.EDGE_FILTER_RGB,
+                        kernels.TOP_SOBEL_RGB,
+                        kernels.EMBOSS_FILTER_RGB]
     else:
-        kernels_list = [kernel.BLUR_FILTER,
-                        kernel.SHARPEN_FILTER,
-                        kernel.EDGE_FILTER,
-                        kernel.TOP_SOBEL,
-                        kernel.EMBOSS_FILTER]
+        kernels_list = [kernels.BLUR_FILTER,
+                        kernels.SHARPEN_FILTER,
+                        kernels.EDGE_FILTER,
+                        kernels.TOP_SOBEL,
+                        kernels.EMBOSS_FILTER]
 
     kernels_list = kernels_list[1:]
-    image = read_one_image('data/friday.jpg')
+    image = read_one_image('../../data/pic.png')
     if not rgb:
         image = tf.image.rgb_to_grayscale(image)
-    image = tf.expand_dims(image, 0) # make it into a batch of 1 element
+    image = tf.expand_dims(image, 0)  # make it into a batch of 1 element
     images = convolve(image, kernels_list, rgb)
     with tf.Session() as sess:
-        images = sess.run(images) # convert images from tensors to float values
+        images = sess.run(images)  # convert images from tensors to float values
     show_images(images, rgb)
 
 if __name__ == '__main__':
