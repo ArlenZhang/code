@@ -50,7 +50,7 @@ def show_images(images, rgb=True):
     plt.show()
 
 def main():
-    rgb = True
+    rgb = False
     if rgb:
         kernels_list = [kernels.BLUR_FILTER_RGB,
                         kernels.SHARPEN_FILTER_RGB,
@@ -65,7 +65,7 @@ def main():
                         kernels.EMBOSS_FILTER]
 
     kernels_list = kernels_list[1:]
-    image = read_one_image('../../data/pic.png')
+    image = read_one_image('../../data/pic0.jpg')
     if not rgb:
         image = tf.image.rgb_to_grayscale(image)
     image = tf.expand_dims(image, 0)  # make it into a batch of 1 element
