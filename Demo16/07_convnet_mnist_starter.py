@@ -55,28 +55,46 @@ def maxpool(inputs, ksize, stride, padding='VALID', scope_name='pool'):
         A method that does max pooling on inputs
     """
     with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
-        pool = tf.nn.max_pool(input,
+        pool = tf.nn.max_pool(inputs,
                               ksize=[1, ksize, ksize, 1],
                               strides=[1, stride, stride, 1],
                               padding=padding)
     return pool
 
+"""
+    全连接层，对pooling的结果到标签之间建立全连接
+    parameters
+        inputs : pooling的结果作为输入
+        out_dim : 输出数据的维度, 标签个数
+        scope_name : 你懂得
+"""
 def fully_connected(inputs, out_dim, scope_name='fc'):
-    '''
-    A fully connected linear layer on inputs
-    '''
-    #############################
-    ########## TO DO ############
-    #############################
-    return None
+    """
+        A fully connected linear layer on inputs
+    """
+    with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
+        in_dim = inputs.shape[-1]  # 列数作为pooling层输出数据个数 ?
+        w = tf.get_variable('weights',
+                            [in_dim, out_dim],
+                            initializer=tf.truncated_normal_initializer())
+        b = tf.get_variable('biases',
+                            [out_dim],
+                            initializer=tf.constant_initializer(0.0))
+        out = tf.matmul(inputs, w) + b
+    return out
 
+"""
+    建类
+"""
 class ConvNet(object):
     def __init__(self):
+        self.accuracy = self.summary_op = self.opt = self.loss = self.logits = self.test_init = self.train_init = self.img = self.label = None
         self.lr = 0.001
         self.batch_size = 128
         self.keep_prob = tf.constant(0.75)
-        self.gstep = tf.Variable(0, dtype=tf.int32, 
-                                trainable=False, name='global_step')
+        self.gstep = tf.Variable(0, dtype=tf.int32,
+                                 trainable=False,
+                                 name='global_step')
         self.n_classes = 10
         self.skip_step = 20
         self.n_test = 10000
@@ -93,64 +111,80 @@ class ConvNet(object):
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
             self.test_init = iterator.make_initializer(test_data)    # initializer for train_data
 
-    def inference(self):
-        '''
-        Build the model according to the description we've shown in class
-        '''
-        #############################
-        ########## TO DO ############
-        #############################
-        self.logits = None
+    def create_logits(self):
+        """
+            Build the model according to the description we've shown in class
+        """
+        # 建立两层convolution + max_pooling
+        conv1 = conv_relu(inputs=self.img,
+                          filters=32,
+                          k_size=5,
+                          stride=1,
+                          padding='SAME',
+                          scope_name='conv1')
+        pool1 = maxpool(conv1, 2, 2, 'VALID', 'pool1')
+
+        conv2 = conv_relu(inputs=pool1,
+                          filters=64,
+                          k_size=5,
+                          stride=1,
+                          padding='SAME',
+                          scope_name='conv2')
+        pool2 = maxpool(conv2, 2, 2, 'VALID', 'pool2')
+        # 存在疑问
+        feature_dim = pool2.shape[1] * pool2.shape[2] * pool2.shape[3]
+        pool2 = tf.reshape(pool2, [-1, feature_dim])  # 转成feature_dim列的数据
+        full_c = fully_connected(pool2, 1024, 'fc')
+        dropout = tf.nn.dropout(tf.nn.relu(full_c), self.keep_prob, name='relu_dropout')
+        self.logits = fully_connected(dropout, self.n_classes, 'logits')
 
     def loss(self):
-        '''
-        define loss function
-        use softmax cross entropy with logits as the loss function
-        tf.nn.softmax_cross_entropy_with_logits
-        softmax is applied internally
-        don't forget to compute mean cross all sample in a batch
-        '''
-        #############################
-        ########## TO DO ############
-        #############################
-        self.loss = None
+        """
+            define loss function
+            use softmax cross entropy with logits as the loss function
+            tf.nn.softmax_cross_entropy_with_logits
+            softmax is applied internally
+            don't forget to compute mean cross all sample in a batch
+        """
+        with tf.name_scope('loss'):
+            entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.label, logits=self.logits)
+            self.loss = tf.reduce_mean(entropy, name='loss')
     
     def optimize(self):
-        '''
-        Define training op
-        using Adam Gradient Descent to minimize cost
-        Don't forget to use global step
-        '''
-        #############################
-        ########## TO DO ############
-        #############################
-        self.opt = None
+        """
+            Define training op
+            using Adam Gradient Descent to minimize cost
+            Don't forget to use global step
+        """
+        self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss,
+                                                            global_step=self.gstep)
 
     def summary(self):
-        '''
-        Create summaries to write on TensorBoard
-        Remember to track both training loss and test accuracy
-        '''
-        #############################
-        ########## TO DO ############
-        #############################
-        self.summary_op = None
-        
+        """
+            Create summaries to write on TensorBoard
+            Remember to track both training loss and test accuracy
+        """
+        with tf.name_scope('summaries'):
+            tf.summary.scalar('loss', self.loss)
+            tf.summary.scalar('accuracy', self.accuracy)
+            tf.summary.histogram('histogram loss', self.loss)
+            self.summary_op = tf.summary.merge_all()
+
     def eval(self):
-        '''
-        Count the number of right predictions in a batch
-        '''
+        """
+            Count the number of right predictions in a batch
+        """
         with tf.name_scope('predict'):
             preds = tf.nn.softmax(self.logits)
             correct_preds = tf.equal(tf.argmax(preds, 1), tf.argmax(self.label, 1))
             self.accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
 
     def build(self):
-        '''
-        Build the computation graph
-        '''
+        """
+            Build the computation graph
+        """
         self.get_data()
-        self.inference()
+        self.create_logits()
         self.loss()
         self.optimize()
         self.eval()
@@ -172,7 +206,7 @@ class ConvNet(object):
                 n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
-        saver.save(sess, 'checkpoints/convnet_starter/mnist-convnet', step)
+        saver.save(sess, '../../checkpoints/convnet_starter/mnist-convnet', step)
         print('Average loss at epoch {0}: {1}'.format(epoch, total_loss/n_batches))
         print('Took: {0} seconds'.format(time.time() - start_time))
         return step
@@ -193,17 +227,17 @@ class ConvNet(object):
         print('Took: {0} seconds'.format(time.time() - start_time))
 
     def train(self, n_epochs):
-        '''
-        The train function alternates between training one epoch and evaluating
-        '''
-        utils.safe_mkdir('checkpoints')
-        utils.safe_mkdir('checkpoints/convnet_starter')
-        writer = tf.summary.FileWriter('./graphs/convnet_starter', tf.get_default_graph())
+        """
+            The train function alternates between training one epoch and evaluating
+        """
+        utils.safe_mkdir('../../checkpoints')
+        utils.safe_mkdir('../../checkpoints/convnet_starter')
+        writer = tf.summary.FileWriter('../../graphs/convnet_starter', tf.get_default_graph())
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('checkpoints/convnet_starter/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../../checkpoints/convnet_starter/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
             
@@ -217,4 +251,4 @@ class ConvNet(object):
 if __name__ == '__main__':
     model = ConvNet()
     model.build()
-    model.train(n_epochs=15)
+    model.train(n_epochs=30)

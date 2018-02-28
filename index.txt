@@ -10,7 +10,7 @@ Demo6 ...................... shape 诠释字符/词语/句子之间的表示
 Demo7 ...................... linear regression & placeholder
 Demo8 ...................... linear regression & tf.data
 Demo9-1..................... Mat-plot-lib 科学绘图
-Demo9-2..................... Matplotlib+Pandas 
+Demo9-2..................... Matplotlib + Pandas
 Demo10...................... 矩阵点乘和叉乘法
 Demo11...................... Logistic Regression
 Demo12...................... Eager Execution 动态图机制,举例线性拟合
