@@ -16,4 +16,4 @@ Demo11...................... Logistic Regression
 Demo12...................... Eager Execution 动态图机制,举例线性拟合
 Demo13...................... Word2vec in tf
 Demo14...................... Word2vec Skip-Gram, run graphs to compare, better use of tensorboard
-
+Demo15...................... CNNs in Tensorflow
