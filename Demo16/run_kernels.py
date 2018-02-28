@@ -10,7 +10,7 @@ import sys
 from matplotlib import gridspec as gridspec
 from matplotlib import pyplot as plt
 import tensorflow as tf
-import code.Demo16.kernels
+import kernel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 sys.path.append('..')
