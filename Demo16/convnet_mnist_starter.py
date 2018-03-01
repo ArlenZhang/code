@@ -117,9 +117,9 @@ class ConvNet(object):
         # 建立两层convolution + max_pooling
         conv1 = conv_relu(inputs=self.img,
                           filters=32,
-                          k_size=5,
-                          stride=1,
-                          padding='SAME',
+                          k_size=5,        # 感受野为5*5
+                          stride=1,        # 步长
+                          padding='SAME',  # 补
                           scope_name='conv1')
         print("conv1,shape", conv1.shape)
         input()
