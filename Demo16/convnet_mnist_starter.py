@@ -123,7 +123,11 @@ class ConvNet(object):
                           scope_name='conv1')
         print("conv1,shape", conv1.shape)
         input()
-        pool1 = maxpool(conv1, 2, 2, 'VALID', 'pool1')
+        pool1 = maxpool(inputs=conv1,
+                        ksize=2,
+                        stride=2,
+                        padding='VALID',
+                        scope_name='pool1')
         print("pool1,shape", pool1.shape)
         input()
         conv2 = conv_relu(inputs=pool1,
