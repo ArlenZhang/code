@@ -20,9 +20,9 @@ BATCH_SIZE = 128
 EMBED_SIZE = 128  # dimension of the word embedding vectors
 SKIP_WINDOW = 1  # the context window
 NUM_SAMPLED = 64  # number of negative examples to sample
-LEARNING_RATE = 0.5
+LEARNING_RATE = 0.7
 NUM_TRAIN_STEPS = 100000  # 训练10000次
-VISUAL_FLD = '../visualization'
+VISUAL_FLD = '../visualization/Demo14'
 SKIP_STEP = 5000  # 每5000次输出一次训练情况 打印loss等
 
 # Parameters for downloading data
@@ -112,13 +112,13 @@ class SkipGramModel:
             sess.run(self.iterator.initializer)
             # 全局初始化
             sess.run(tf.global_variables_initializer())
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/Demo14/checkpoint'))
             # if that checkpoint exists, restore from checkpoint
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
             # 学习和训练的过程
             total_loss = 0.0  # we use this to calculate late average loss in the last SKIP_STEP steps
-            writer = tf.summary.FileWriter('../graphs/word2vec/lr' + str(self.lr), sess.graph)
+            writer = tf.summary.FileWriter('../graphs/Demo14/lr' + str(self.lr), sess.graph)
             initial_step = self.global_step.eval()
 
             for index in range(initial_step, initial_step + num_train_steps):
@@ -129,21 +129,19 @@ class SkipGramModel:
                     if (index + 1) % self.skip_step == 0:
                         print('Average loss at step {}: {:5.1f}'.format(index, total_loss / self.skip_step))
                         total_loss = 0.0
-                        saver.save(sess, '../checkpoints/skip-gram', index)
+                        saver.save(sess, '../checkpoints/Demo14/skip-gram', index)
                 except tf.errors.OutOfRangeError:
                     sess.run(self.iterator.initializer)
             writer.close()
 
     def visualize(self, visual_fld, num_visualize):
-        """ run tensorboard --logdir='/home/arlenzhang/Desktop/Workstation/Period2/visualization' """
-
         # create the list of num_variable most common words to visualize
         word2vec_utils.most_common_words(visual_fld, num_visualize)
 
         saver = tf.train.Saver()
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/Demo14/checkpoint'))
 
             # if that checkpoint exists, restore from checkpoint
             if ckpt and ckpt.model_checkpoint_path:
@@ -188,4 +186,9 @@ def main():
 
 if __name__ == '__main__':
     main()
-
+""" 
+    run tensorboard --logdir='visualization/Demo14'
+    run tensorboard --logdir='graphs/Demo14/lr0.5'
+    run tensorboard --logdir='graphs/Demo14/lr0.7'
+    http://ArlenIAC:6006
+"""

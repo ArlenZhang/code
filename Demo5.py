@@ -6,7 +6,7 @@ y = tf.Variable(20, name="y")
 
 # Normal loading
 # z = tf.add(x, y)   # 在使用之前就创建节点
-writer = tf.summary.FileWriter('../graphs', tf.get_default_graph())
+writer = tf.summary.FileWriter('../graphs/Demo5', tf.get_default_graph())
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for _ in range(10):
@@ -17,11 +17,8 @@ writer.close()
 
 '''
 Go to terminal run:
-    tensorboard --logdir="tensorboard --logdir="/home/arlenzhang/Desktop/Workstation/Period2/graphs" --port 6006" --port 6006
-
-then :
-    open browser  http://ArlenIAC:6006
-    
+    tensorboard --logdir="graphs/Demo5" --port 6006
+    http://ArlenIAC:6006
     当计算一个像add这样的操作成千上万次，图形变得臃肿并且加载昂贵！github上最常见的不是bug的bug.
     
 '''

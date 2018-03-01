@@ -45,7 +45,7 @@ start = time.time()
 
 with tf.Session() as sess:
     # Create a file writer to write the model's graph to TensorBoard
-    writer = tf.summary.FileWriter('../graphs', sess.graph)
+    writer = tf.summary.FileWriter('../graphs/Demo7', sess.graph)
 
     # Step 7: initialize the necessary variables, in this case, w and b
     sess.run(tf.global_variables_initializer())
@@ -81,6 +81,6 @@ plt.plot(x_arr, y_arr, color='red', label='Predicted data')
 plt.legend()
 plt.show()
 """
-    tensorboard --logdir="/home/arlenzhang/Desktop/Workstation/Period2/graphs" --port 6006
+    tensorboard --logdir="graphs/Demo7" --port 6006
     http://ArlenIAC:6006
 """

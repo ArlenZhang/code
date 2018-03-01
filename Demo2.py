@@ -7,21 +7,17 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 a = tf.constant(2, name='a')
 b = tf.constant(3, name='b')
 x = tf.add(a, b, name='add')
-writer = tf.summary.FileWriter('../graphs', tf.get_default_graph())
+writer = tf.summary.FileWriter('../graphs/Demo2', tf.get_default_graph())
 with tf.Session() as sess:
     # writer = tf.summary.FileWriter('graphs', sess.graph)
     print(sess.run(x))
     print(x.eval())  # 意味着
-
 writer.close()
 '''
 Go to terminal run:
-    tensorboard --logdir="/home/arlenzhang/Desktop/Workstation/Period2/graphs" --port 6006
-    
-then :
+    tensorboard --logdir="graphs/Demo2" --port 6006
     open browser  http://ArlenIAC:6006
 '''
-
 # =============================== operation 2 Constants
 a = tf.constant([1, 2], name="a")
 b = tf.constant([[0, 1], [2, 3]], name="b")

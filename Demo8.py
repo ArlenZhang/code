@@ -41,7 +41,7 @@ start = time.time()
 with tf.Session() as sess:
     # Step 7: initialize the necessary variables, in this case, w and b
     sess.run(tf.global_variables_initializer())
-    writer = tf.summary.FileWriter('graphs', sess.graph)
+    writer = tf.summary.FileWriter('../graphs/Demo8', sess.graph)
     # Step 8: train the model for 100 epochs
     for i in range(100):
         sess.run(iterator.initializer)  # initialize the iterator
@@ -71,3 +71,7 @@ for item in x_arr:
 plt.plot(x_arr, y_arr, color='red', label='Predicted data')
 plt.legend()
 plt.show()
+"""
+    tensorboard --logdir="graphs/Demo8" --port 6006
+    http://ArlenIAC:6006
+"""

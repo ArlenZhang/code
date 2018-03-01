@@ -20,7 +20,7 @@ SKIP_WINDOW = 1   # the context window
 NUM_SAMPLED = 64  # number of negative examples to sample
 LEARNING_RATE = 1.0
 NUM_TRAIN_STEPS = 100000
-VISUAL_FLD = '../visualization'
+VISUAL_FLD = '../visualization/Demo13'
 SKIP_STEP = 5000
 
 # Parameters for downloading data

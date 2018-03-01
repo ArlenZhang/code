@@ -74,7 +74,7 @@ correct_preds = tf.equal(tf.argmax(preds, 1), tf.argmax(label, 1))  # 计数树�
 """
 accuracy = tf.reduce_sum(tf.cast(correct_preds, tf.float32))
 print(accuracy)
-writer = tf.summary.FileWriter('../graphs/logreg', tf.get_default_graph())
+writer = tf.summary.FileWriter('../graphs/Demo11', tf.get_default_graph())
 with tf.Session() as sess:
     start_time = time.time()
     sess.run(tf.global_variables_initializer())
@@ -110,3 +110,7 @@ with tf.Session() as sess:
 
     print('Accuracy {0}'.format(total_correct_preds / n_test))
 writer.close()
+"""
+    tensorboard --logdir="graphs/Demo11" --port 6006
+    http://ArlenIAC:6006
+"""
