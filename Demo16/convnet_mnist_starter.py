@@ -102,12 +102,9 @@ class ConvNet(object):
             train_data, test_data = utils.get_mnist_dataset(self.batch_size, mnist_folder=mnist_folder)
             iterator = tf.data.Iterator.from_structure(train_data.output_types, train_data.output_shapes)
             img, self.label = iterator.get_next()
-            print("img.shape: ", img.shape)
             self.img = tf.reshape(img, shape=[-1, 28, 28, 1])
             # reshape the image to make it work with tf.nn.conv2d
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
-            print("self.img.shape: ", self.img.shape)
-            input()
             self.test_init = iterator.make_initializer(test_data)    # initializer for test_data
 
     def create_logits(self):
