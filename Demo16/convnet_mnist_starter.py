@@ -121,27 +121,18 @@ class ConvNet(object):
                           stride=1,        # 步长
                           padding='SAME',  # 补
                           scope_name='conv1')
-        print("conv1,shape", conv1.shape)
-        input()
         pool1 = maxpool(inputs=conv1,
                         ksize=2,
                         stride=2,
                         padding='VALID',
                         scope_name='pool1')
-        print("pool1,shape", pool1.shape)
-        input()
         conv2 = conv_relu(inputs=pool1,
                           filters=64,
                           k_size=5,
                           stride=1,
                           padding='SAME',
                           scope_name='conv2')
-        print("conv2,shape", conv2.shape)
-        input()
         pool2 = maxpool(conv2, 2, 2, 'VALID', 'pool2')
-        print("pool2,shape", pool2.shape)
-        input()
-        # 存在疑问
         feature_dim = pool2.shape[1] * pool2.shape[2] * pool2.shape[3]
         pool2 = tf.reshape(pool2, [-1, feature_dim])  # 转成feature_dim列的数据
         full_c = fully_connected(pool2, 1024, 'fc')
