@@ -18,7 +18,6 @@ n_test = 10000
 
 # Step 1: Read in data
 mnist_folder = '../data/mnist'
-# utils.download_mnist(mnist_folder)
 
 # 获取到训练集 验证集 测试集的图像 和 前两个的标签信息
 train, val, test = utils.read_mnist(mnist_folder, flatten=True)

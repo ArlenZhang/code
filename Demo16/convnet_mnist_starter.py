@@ -12,6 +12,7 @@ import utils
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 """
+    ================ CNN的convolution, pooling, full_conn部分设计 ==================
     parameters
         input : 输入图像
         filters : 过滤器长度
@@ -26,18 +27,15 @@ def conv_relu(inputs, filters, k_size, stride, padding, scope_name):
     """
     with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
         in_channels = inputs.shape[-1]  # 输入数据，图像input转成一列，所以列数对应的channels, RGB就是三种颜色3列
+
         # 初始化kernel数据
-        kernel = tf.get_variable('kernel',
-                                 [k_size, k_size, in_channels, filters],
+        kernel = tf.get_variable('kernel', [k_size, k_size, in_channels, filters],
                                  initializer=tf.truncated_normal_initializer())
-        bias = tf.get_variable('biases',
-                               [filters],
-                               initializer=tf.random_normal_initializer())
+        bias = tf.get_variable('biases', [filters], initializer=tf.random_normal_initializer())
+
         # convolution在tensorflow中定义
-        conv = tf.nn.conv2d(inputs,
-                            kernel,
-                            strides=[1, stride, stride, 1],
-                            padding=padding)
+        conv = tf.nn.conv2d(inputs, kernel, strides=[1, stride, stride, 1], padding=padding)
+
         # relu 规范化过程定义
         result = tf.nn.relu(conv + bias, name=scope.name)
     return result
@@ -84,7 +82,7 @@ def fully_connected(inputs, out_dim, scope_name='fc'):
     return out
 
 """
-    建类
+    ================ 神经网络部分 ==================
 """
 class ConvNet(object):
     def __init__(self):
@@ -92,24 +90,25 @@ class ConvNet(object):
         self.lr = 0.001
         self.batch_size = 128
         self.keep_prob = tf.constant(0.75)
-        self.gstep = tf.Variable(0, dtype=tf.int32,
-                                 trainable=False,
-                                 name='global_step')
+        self.gstep = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step')
         self.n_classes = 10
         self.skip_step = 20
         self.n_test = 10000
+        self.training = True
 
     def get_data(self):
         with tf.name_scope('data'):
-            train_data, test_data = utils.get_mnist_dataset(self.batch_size)
-            iterator = tf.data.Iterator.from_structure(train_data.output_types, 
-                                                   train_data.output_shapes)
+            mnist_folder = '../../data/mnist'
+            train_data, test_data = utils.get_mnist_dataset(self.batch_size, mnist_folder=mnist_folder)
+            iterator = tf.data.Iterator.from_structure(train_data.output_types, train_data.output_shapes)
             img, self.label = iterator.get_next()
+            print("img.shape: ", img.shape)
             self.img = tf.reshape(img, shape=[-1, 28, 28, 1])
             # reshape the image to make it work with tf.nn.conv2d
-
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
-            self.test_init = iterator.make_initializer(test_data)    # initializer for train_data
+            print("self.img.shape: ", self.img.shape)
+            input()
+            self.test_init = iterator.make_initializer(test_data)    # initializer for test_data
 
     def create_logits(self):
         """
@@ -122,15 +121,22 @@ class ConvNet(object):
                           stride=1,
                           padding='SAME',
                           scope_name='conv1')
+        print("conv1,shape", conv1.shape)
+        input()
         pool1 = maxpool(conv1, 2, 2, 'VALID', 'pool1')
-
+        print("pool1,shape", pool1.shape)
+        input()
         conv2 = conv_relu(inputs=pool1,
                           filters=64,
                           k_size=5,
                           stride=1,
                           padding='SAME',
                           scope_name='conv2')
+        print("conv2,shape", conv2.shape)
+        input()
         pool2 = maxpool(conv2, 2, 2, 'VALID', 'pool2')
+        print("pool2,shape", pool2.shape)
+        input()
         # 存在疑问
         feature_dim = pool2.shape[1] * pool2.shape[2] * pool2.shape[3]
         pool2 = tf.reshape(pool2, [-1, feature_dim])  # 转成feature_dim列的数据
@@ -138,7 +144,7 @@ class ConvNet(object):
         dropout = tf.nn.dropout(tf.nn.relu(full_c), self.keep_prob, name='relu_dropout')
         self.logits = fully_connected(dropout, self.n_classes, 'logits')
 
-    def loss(self):
+    def create_loss(self):
         """
             define loss function
             use softmax cross entropy with logits as the loss function
@@ -150,14 +156,13 @@ class ConvNet(object):
             entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.label, logits=self.logits)
             self.loss = tf.reduce_mean(entropy, name='loss')
     
-    def optimize(self):
+    def create_optimize(self):
         """
             Define training op
             using Adam Gradient Descent to minimize cost
             Don't forget to use global step
         """
-        self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss,
-                                                            global_step=self.gstep)
+        self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
     def summary(self):
         """
@@ -185,14 +190,16 @@ class ConvNet(object):
         """
         self.get_data()
         self.create_logits()
-        self.loss()
-        self.optimize()
+        self.create_loss()
+        self.create_optimize()
         self.eval()
         self.summary()
 
     def train_one_epoch(self, sess, saver, init, writer, epoch, step):
         start_time = time.time()
-        sess.run(init) 
+        sess.run(init)
+        input()
+        self.training = True
         total_loss = 0
         n_batches = 0
         try:
@@ -214,6 +221,7 @@ class ConvNet(object):
     def eval_once(self, sess, init, writer, epoch, step):
         start_time = time.time()
         sess.run(init)
+        self.training = False
         total_correct_preds = 0
         try:
             while True:
@@ -251,4 +259,4 @@ class ConvNet(object):
 if __name__ == '__main__':
     model = ConvNet()
     model.build()
-    model.train(n_epochs=30)
+    model.train(n_epochs=10)
