@@ -72,6 +72,8 @@ def fully_connected(inputs, out_dim, scope_name='fc'):
     """
     with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
         in_dim = inputs.shape[-1]  # 列数作为pooling层输出数据个数 ?
+        print("in_dim: ")
+        input()
         w = tf.get_variable('weights',
                             [in_dim, out_dim],
                             initializer=tf.truncated_normal_initializer())
