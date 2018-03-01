@@ -72,14 +72,8 @@ def fully_connected(inputs, out_dim, scope_name='fc'):
     """
     with tf.variable_scope(scope_name, reuse=tf.AUTO_REUSE) as scope:
         in_dim = inputs.shape[-1]  # 列数作为pooling层输出数据个数 ?
-        print("in_dim: ")
-        input()
-        w = tf.get_variable('weights',
-                            [in_dim, out_dim],
-                            initializer=tf.truncated_normal_initializer())
-        b = tf.get_variable('biases',
-                            [out_dim],
-                            initializer=tf.constant_initializer(0.0))
+        w = tf.get_variable('weights', [in_dim, out_dim], initializer=tf.truncated_normal_initializer())
+        b = tf.get_variable('biases', [out_dim], initializer=tf.constant_initializer(0.0))
         out = tf.matmul(inputs, w) + b
     return out
 
@@ -111,7 +105,7 @@ class ConvNet(object):
 
     def create_logits(self):
         """
-            Build the model according to the description we've shown in class
+            数据流 or 模型逻辑结构
         """
         # 建立两层convolution + max_pooling
         conv1 = conv_relu(inputs=self.img,
@@ -140,11 +134,7 @@ class ConvNet(object):
 
     def create_loss(self):
         """
-            define loss function
-            use softmax cross entropy with logits as the loss function
-            tf.nn.softmax_cross_entropy_with_logits
-            softmax is applied internally
-            don't forget to compute mean cross all sample in a batch
+            定义损失函数
         """
         with tf.name_scope('loss'):
             entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.label, logits=self.logits)
@@ -152,16 +142,13 @@ class ConvNet(object):
     
     def create_optimize(self):
         """
-            Define training op
-            using Adam Gradient Descent to minimize cost
-            Don't forget to use global step
+            反响传播，训练最优参数
         """
         self.opt = tf.train.AdamOptimizer(self.lr).minimize(self.loss, global_step=self.gstep)
 
     def summary(self):
         """
-            Create summaries to write on TensorBoard
-            Remember to track both training loss and test accuracy
+            数据的展示汇总
         """
         with tf.name_scope('summaries'):
             tf.summary.scalar('loss', self.loss)
@@ -192,7 +179,6 @@ class ConvNet(object):
     def train_one_epoch(self, sess, saver, init, writer, epoch, step):
         start_time = time.time()
         sess.run(init)
-        input()
         self.training = True
         total_loss = 0
         n_batches = 0
@@ -207,7 +193,7 @@ class ConvNet(object):
                 n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
-        saver.save(sess, '../../checkpoints/convnet_starter/mnist-convnet', step)
+        saver.save(sess, '../../checkpoints/Demo15/mnist-convnet', step)
         print('Average loss at epoch {0}: {1}'.format(epoch, total_loss/n_batches))
         print('Took: {0} seconds'.format(time.time() - start_time))
         return step
@@ -233,13 +219,13 @@ class ConvNet(object):
             The train function alternates between training one epoch and evaluating
         """
         utils.safe_mkdir('../../checkpoints')
-        utils.safe_mkdir('../../checkpoints/convnet_starter')
-        writer = tf.summary.FileWriter('../../graphs/convnet_starter', tf.get_default_graph())
+        utils.safe_mkdir('../../checkpoints/Demo15')
+        writer = tf.summary.FileWriter('../../graphs/Demo15', tf.get_default_graph())
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../../checkpoints/convnet_starter/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../../checkpoints/Demo15/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
             
@@ -254,3 +240,7 @@ if __name__ == '__main__':
     model = ConvNet()
     model.build()
     model.train(n_epochs=10)
+    """
+        tensorboard --logdir="graphs/Demo15"
+        http://ArlenIAC:6006
+    """
