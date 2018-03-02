@@ -82,7 +82,8 @@ def fully_connected(inputs, out_dim, scope_name='fc'):
 """
 class ConvNet(object):
     def __init__(self):
-        self.accuracy = self.summary_op = self.opt = self.loss = self.logits = self.test_init = self.train_init = self.img = self.label = None
+        self.accuracy = self.summary_op = self.opt = self.loss = self.logits = self.test_init = self.train_init = \
+            self.img = self.label = None
         self.lr = 0.001
         self.batch_size = 128
         self.keep_prob = tf.constant(0.75)
