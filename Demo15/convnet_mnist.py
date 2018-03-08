@@ -39,6 +39,7 @@ def conv_relu(inputs, filters, k_size, stride, padding, scope_name):
         # relu 规范化过程定义
         result = tf.nn.relu(conv + bias, name=scope.name)
     return result
+
 """
     池化层, pooling过程也有convolution的过程
     parameters
@@ -97,10 +98,12 @@ class ConvNet(object):
         with tf.name_scope('data'):
             mnist_folder = '../../data/mnist'
             train_data, test_data = utils.get_mnist_dataset(self.batch_size, mnist_folder=mnist_folder)
+
             iterator = tf.data.Iterator.from_structure(train_data.output_types, train_data.output_shapes)
             img, self.label = iterator.get_next()
             self.img = tf.reshape(img, shape=[-1, 28, 28, 1])
-            # reshape the image to make it work with tf.nn.conv2d
+            # 上面生成的iterator通过下面函数进行下一步迭代，run epoch关键就在这里, iterator每次切换用train和test初始化过程中
+            # self.img分别切换为train和test的iterator并执行next使得当前img卫队鹰操作需要数据的下一批次数据
             self.train_init = iterator.make_initializer(train_data)  # initializer for train_data
             self.test_init = iterator.make_initializer(test_data)    # initializer for test_data
 
@@ -115,6 +118,10 @@ class ConvNet(object):
                           stride=1,        # 步长
                           padding='SAME',  # 补
                           scope_name='conv1')
+        print(self.img.shape)
+        print(conv1.shape)
+        input()
+
         pool1 = maxpool(inputs=conv1,
                         ksize=2,
                         stride=2,
@@ -128,17 +135,25 @@ class ConvNet(object):
                           scope_name='conv2')
         pool2 = maxpool(conv2, 2, 2, 'VALID', 'pool2')
         feature_dim = pool2.shape[1] * pool2.shape[2] * pool2.shape[3]
+        print("feature_dim: ", feature_dim)
         pool2 = tf.reshape(pool2, [-1, feature_dim])  # 转成feature_dim列的数据
         full_c = fully_connected(pool2, 1024, 'fc')
         dropout = tf.nn.dropout(tf.nn.relu(full_c), self.keep_prob, name='relu_dropout')
         self.logits = fully_connected(dropout, self.n_classes, 'logits')
+        print(self.logits.shape)
+        print(self.label.shape)
+        input("shape")
 
     def create_loss(self):
         """
             定义损失函数
         """
         with tf.name_scope('loss'):
+            print(self.label.shape)
+            print(self.logits.shape)
+            input("不一致的shape是什么鬼")
             entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.label, logits=self.logits)
+            input("不一致?")
             self.loss = tf.reduce_mean(entropy, name='loss')
     
     def create_optimize(self):
@@ -180,6 +195,9 @@ class ConvNet(object):
     def train_one_epoch(self, sess, saver, init, writer, epoch, step):
         start_time = time.time()
         sess.run(init)
+        print(self.label)
+        print(self.logits)
+        input()
         self.training = True
         total_loss = 0
         n_batches = 0
@@ -219,6 +237,7 @@ class ConvNet(object):
         """
             The train function alternates between training one epoch and evaluating
         """
+        input("训练过程")
         utils.safe_mkdir('../../checkpoints')
         utils.safe_mkdir('../../checkpoints/Demo15')
         writer = tf.summary.FileWriter('../../graphs/Demo15', tf.get_default_graph())
