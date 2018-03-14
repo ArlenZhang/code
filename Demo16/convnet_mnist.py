@@ -212,7 +212,7 @@ class ConvNet(object):
                 n_batches += 1
         except tf.errors.OutOfRangeError:
             pass
-        saver.save(sess, '../../checkpoints/Demo15/mnist-convnet', step)
+        saver.save(sess, '../../checkpoints/Demo16/mnist-convnet', step)
         print('Average loss at epoch {0}: {1}'.format(epoch, total_loss/n_batches))
         print('Took: {0} seconds'.format(time.time() - start_time))
         return step
@@ -239,13 +239,13 @@ class ConvNet(object):
         """
         input("训练过程")
         utils.safe_mkdir('../../checkpoints')
-        utils.safe_mkdir('../../checkpoints/Demo15')
-        writer = tf.summary.FileWriter('../../graphs/Demo15', tf.get_default_graph())
+        utils.safe_mkdir('../../checkpoints/Demo16')
+        writer = tf.summary.FileWriter('../../graphs/Demo16', tf.get_default_graph())
 
         with tf.Session() as sess:
             sess.run(tf.global_variables_initializer())
             saver = tf.train.Saver()
-            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../../checkpoints/Demo15/checkpoint'))
+            ckpt = tf.train.get_checkpoint_state(os.path.dirname('../../checkpoints/Demo16/checkpoint'))
             if ckpt and ckpt.model_checkpoint_path:
                 saver.restore(sess, ckpt.model_checkpoint_path)
             
@@ -261,6 +261,6 @@ if __name__ == '__main__':
     model.build()
     model.train(n_epochs=10)
     """
-        tensorboard --logdir="graphs/Demo15"
+        tensorboard --logdir="graphs/Demo16"
         http://ArlenIAC:6006
     """

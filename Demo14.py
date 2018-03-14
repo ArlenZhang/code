@@ -3,8 +3,11 @@
     这套代码似乎更合理，运用create xxx 将一些函数过程传递给类，作为属性
     问题：怎么运行两套学习率代码比较曲线 toggle run
     run tensorboard --logdir='/home/arlenzhang/Desktop/Workstation/Period2/visualization'
-        tensorboard --logdir=name1:'/home/arlenzhang/Desktop/Workstation/Period2/graphs/word2vec/lr1.0',name2:'/home/arlenzhang/Desktop/Workstation/Period2/graphs/word2vec/lr0.5'
+        tensorboard --logdir=name1:'/home/arlenzhang/Desktop/Workstation/Period2/graphs/word2vec/lr1.0',
+        name2:'/home/arlenzhang/Desktop/Workstation/Period2/graphs/word2vec/lr0.5'
 
+    Word2Vec模型中，主要有Skip-Gram和CBOW两种模型，从直观上理解，Skip-Gram是给定input word来预测上下文。
+    而CBOW是给定上下文，来预测input word。本篇文章仅讲解Skip-Gram模型。
 """
 import os
 from tensorflow.contrib.tensorboard.plugins import projector
@@ -52,7 +55,8 @@ class SkipGramModel:
         self.nce_bias = tf.get_variable('nce_bias', initializer=tf.zeros([VOCAB_SIZE]))
 
     def _import_data(self):
-        """ Step 1: import data
+        """
+            Step 1: import data
         """
         with tf.name_scope('data'):
             self.iterator = self.dataset.make_initializable_iterator()
@@ -60,8 +64,8 @@ class SkipGramModel:
 
     def _create_embedding(self):
         """
-        Step 2 : embedding lookup.
-        In word2vec, it's actually the weights that we care about
+            Step 2 : embedding lookup.
+            In word2vec, it's actually the weights that we care about
         """
         with tf.name_scope('embed'):
             self.embed_matrix = tf.get_variable('embed_matrix',
