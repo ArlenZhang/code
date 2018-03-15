@@ -114,6 +114,9 @@ class SkipGramModel:
         with tf.Session() as sess:
             # dataset 这套代码需要初始化iterator迭代器
             sess.run(self.iterator.initializer)
+            print("center_word: ", self.center_words.eval())
+            print("target_word: ", self.target_words.eval())
+            input()
             # 全局初始化
             sess.run(tf.global_variables_initializer())
             ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/Demo14/checkpoint'))
@@ -175,12 +178,11 @@ class SkipGramModel:
 
 def gen():
     yield from word2vec_utils.batch_gen(DOWNLOAD_URL, EXPECTED_BYTES, VOCAB_SIZE,
-                                        BATCH_SIZE, SKIP_WINDOW, VISUAL_FLD)
+                                        BATCH_SIZE, SKIP_WINDOW, VISUAL_FLD, corpus="pdtb")
 
 
 def main():
-    dataset = tf.data.Dataset.from_generator(gen,
-                                             (tf.int32, tf.int32),
+    dataset = tf.data.Dataset.from_generator(gen, (tf.int32, tf.int32),
                                              (tf.TensorShape([BATCH_SIZE]), tf.TensorShape([BATCH_SIZE, 1])))
     model = SkipGramModel(dataset, VOCAB_SIZE, EMBED_SIZE, BATCH_SIZE, NUM_SAMPLED, LEARNING_RATE)
     model.build_graph()
