@@ -7,7 +7,7 @@
         name2:'/home/arlenzhang/Desktop/Workstation/Period2/graphs/word2vec/lr0.5'
 
     Word2Vec模型中，主要有Skip-Gram和CBOW两种模型，从直观上理解，Skip-Gram是给定input word来预测上下文。
-    而CBOW是给定上下文，来预测input word。本篇文章仅讲解Skip-Gram模型。
+    而 CBOW 是给定上下文，来预测input word。本篇文章仅讲解Skip-Gram模型。
 """
 import os
 from tensorflow.contrib.tensorboard.plugins import projector
@@ -192,7 +192,7 @@ def main():
 if __name__ == '__main__':
     main()
 """ 
-    run tensorboard --logdir='visualization/Demo14'
-    run tensorboard --logdir='graphs/Demo14'
+    tensorboard --logdir='visualization/Demo14'
+    tensorboard --logdir='graphs/Demo14/lr0.7' --port=6008
     http://ArlenIAC:6006
 """
