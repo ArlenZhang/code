@@ -24,7 +24,7 @@ EMBED_SIZE = 128  # dimension of the word embedding vectors
 SKIP_WINDOW = 1  # the context window
 NUM_SAMPLED = 64  # number of negative examples to sample
 LEARNING_RATE = 0.7
-NUM_TRAIN_STEPS = 100000  # 训练100000次
+NUM_TRAIN_STEPS = 10000  # 训练100000次
 VISUAL_FLD = '../visualization/Demo14'
 SKIP_STEP = 5000  # 每5000次输出一次训练情况 打印loss等
 
@@ -91,6 +91,7 @@ class SkipGramModel:
     def _create_summaries(self):
         with tf.name_scope('summaries'):
             tf.summary.scalar('loss', self.loss)
+            tf.summary.scalar('loss_dev', tf.add(self.loss, 20))
             tf.summary.histogram('histogram loss', self.loss)
             # because you have several summaries, we should merge them all
             # into one op to make it easier to manage
@@ -116,6 +117,7 @@ class SkipGramModel:
             sess.run(self.iterator.initializer)
             # 全局初始化
             sess.run(tf.global_variables_initializer())
+
             ckpt = tf.train.get_checkpoint_state(os.path.dirname('../checkpoints/Demo14/checkpoint'))
             # if that checkpoint exists, restore from checkpoint
             if ckpt and ckpt.model_checkpoint_path:
@@ -127,7 +129,8 @@ class SkipGramModel:
 
             for index in range(initial_step, initial_step + num_train_steps):
                 try:
-                    loss_batch, _, summary = sess.run([self.loss, self.optimizer, self.summary_op])
+                    loss_batch, _, summary = sess.run([self.loss, self.optimizer,
+                                                                    self.summary_op])
                     writer.add_summary(summary, global_step=index)
                     total_loss += loss_batch
                     if (index + 1) % self.skip_step == 0:
@@ -172,7 +175,6 @@ class SkipGramModel:
             saver_embed = tf.train.Saver([embedding_var])
             saver_embed.save(sess, os.path.join(visual_fld, 'model.ckpt'), 1)
 
-
 def gen():
     yield from word2vec_utils.batch_gen(DOWNLOAD_URL, EXPECTED_BYTES, VOCAB_SIZE,
                                         BATCH_SIZE, SKIP_WINDOW, VISUAL_FLD)
@@ -187,12 +189,10 @@ def main():
     model.train(NUM_TRAIN_STEPS)
     model.visualize(VISUAL_FLD, NUM_VISUALIZE)
 
-
 if __name__ == '__main__':
     main()
 """ 
     run tensorboard --logdir='visualization/Demo14'
-    run tensorboard --logdir='graphs/Demo14/lr0.5'
-    run tensorboard --logdir='graphs/Demo14/lr0.7'
+    run tensorboard --logdir='graphs/Demo14'
     http://ArlenIAC:6006
 """

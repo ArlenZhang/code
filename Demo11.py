@@ -104,6 +104,7 @@ with tf.Session() as sess:
     try:
         while True:
             accuracy_batch = sess.run(accuracy)
+            print(accuracy_batch)
             total_correct_preds += accuracy_batch
     except tf.errors.OutOfRangeError:
         pass
