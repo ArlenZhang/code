@@ -29,7 +29,6 @@ plt.ylim(-1.0, 1.0)
 # 对于这个图像 我们更关心横坐标对应的最值的x值，插入x_sticks
 plt.xticks([-np.pi, 0, np.pi], [r'$-\pi$', r'$0$', r'$+\pi$'])
 
-
 # create a new subplot
 plt.subplot(242)
 plt.plot(X, S, color="green", linewidth=1.0, linestyle="-.")
@@ -37,12 +36,12 @@ plt.xlim(-4.0, 4.0)
 plt.ylim(-1.0, 1.0)
 
 # save all
-plt.savefig("graphs/matplotlib1.png", dpi=100)
+plt.savefig("../graphs/matplotlib1.png", dpi=100)
 # plt.show()
 
 # section 3 : 对XY之间关系的一般化理解，绘制一般图像
 x = np.linspace(-10, 10, 10000)
-y = (x-1)**2
+y = (x - 1) ** 2
 plt.subplot(243)
 plt.plot(x, y, color="red", linestyle="-")
 # plt.show()
@@ -67,11 +66,15 @@ plt.subplot(245)
 plt.bar(x, y, facecolor="#9999ff", edgecolor="white")
 # 怎么将数据标在每个bar上
 for x, y in zip(x, y):
-    plt.text(x+0.1, y+0.05, '%i' % y, ha='center', va='bottom')
+    plt.text(x + 0.1, y + 0.05, '%i' % y, ha='center', va='bottom')
 
 # section 5 : Contour Plots
 plt.subplot(246)
-def f(x, y):  return(1-x/2+x**5+y**3)*np.exp(-x**2-y**2)
+
+
+def f(x_, y_): return (1 - x_ / 2 + x_ ** 5 + y_ ** 3) * np.exp(-x_ ** 2 - y_ ** 2)
+
+
 n = 256
 x = np.linspace(-3, 3, n)
 y = np.linspace(-3, 3, n)
@@ -81,7 +84,7 @@ C = plt.contour(X, Y, f(X, Y), 8, colors='black', linewidth=.5)
 
 # section 6 : image show
 plt.subplot(247)
-img_path = "graphs/matplotlib1.png"
+img_path = "../graphs/matplotlib1.png"
 image_matrix = mpimg.imread(img_path)
 plt.imshow(image_matrix)
 
@@ -97,8 +100,23 @@ ax = Axes3D(fig)
 X = np.arange(-4, 4, 0.25)
 Y = np.arange(-4, 4, 0.25)
 X, Y = np.meshgrid(X, Y)
-R = np.sqrt(X**2 + Y**2)
+R = np.sqrt(X ** 2 + Y ** 2)
 Z = np.sin(R)
 ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='hot')
 plt.show()
 
+def draw_dev_train_loss(idx, loss_train, loss_dev):
+    # 工作目标：连接各个点作图
+    plt.figure()
+    plt.plot(idx, loss_train, color="blue")
+    plt.plot(idx, loss_dev, color="red")
+    plt.title("loss_dev_train")
+    plt.xlabel("epoch_")
+    plt.ylabel("loss_")
+    plt.show()
+
+
+idx = np.array([i for i in range(15)])
+y_train = np.array([10, 8, 7, 6, 5, 5, 4, 4, 3, 2, 1, 1, 0.5, 0.5, 0])  # 训练集上的loss分布
+y_dev = np.array([10, 8, 7, 6, 5, 5, 5, 6, 7, 8, 8, 9, 10, 12, 15])  # 验证集上面的loss分布
+draw_dev_train_loss(idx, y_train, y_dev)
