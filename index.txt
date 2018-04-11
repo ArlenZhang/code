@@ -19,3 +19,5 @@ Demo14...................... Word2vec Skip-Gram, run graphs to compare, better u
 Demo15...................... Word2vec CBOW in RST-DT
 Demo16...................... CNNs in Tensorflow
 Demo17...................... 创建Glove的pkl文件
+
+Demo18...................... Pytorch
