@@ -37,8 +37,6 @@ class MyReLU(torch.autograd.Function):
 dtype = torch.FloatTensor
 # dtype = torch.cuda.FloatTensor # Uncomment this to run on GPU
 
-# N is batch size; D_in is input dimension;
-# H is hidden dimension; D_out is output dimension.
 N, D_in, H, D_out = 64, 1000, 100, 10
 
 # Create random Tensors to hold input and outputs, and wrap them in Variables.
