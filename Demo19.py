@@ -17,7 +17,7 @@ w2 = torch.randn(H, D_out).type(dtype)
 
 learning_rate = 1e-6
 for t in range(500):
-    # Forward pass: compute predicted y
+    # matmul
     h = x.mm(w1)
     h_relu = h.clamp(min=0)
     y_pred = h_relu.mm(w2)

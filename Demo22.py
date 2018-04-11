@@ -2,11 +2,7 @@
 import torch
 from torch.autograd import Variable
 
-# N is batch size; D_in is input dimension;
-# H is hidden dimension; D_out is output dimension.
 N, D_in, H, D_out = 64, 1000, 100, 10
-
-# Create random Tensors to hold inputs and outputs, and wrap them in Variables.
 x = Variable(torch.randn(N, D_in))
 y = Variable(torch.randn(N, D_out), requires_grad=False)
 
@@ -37,7 +33,6 @@ for t in range(500):
     # loss.
     loss = loss_fn(y_pred, y)
     print(t, loss.data[0])
-
     # Zero the gradients before running the backward pass.
     model.zero_grad()
 
@@ -46,7 +41,6 @@ for t in range(500):
     # in Variables with requires_grad=True, so this call will compute gradients for
     # all learnable parameters in the model.
     loss.backward()
-
     # Update the weights using gradient descent. Each parameter is a Variable, so
     # we can access its data and gradients like we did before.
     for param in model.parameters():

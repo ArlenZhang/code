@@ -4,18 +4,13 @@ from torch.autograd import Variable
 
 dtype = torch.FloatTensor
 # dtype = torch.cuda.FloatTensor # Uncomment this to run on GPU
-
-# N is batch size; D_in is input dimension;
-# H is hidden dimension; D_out is output dimension.
 N, D_in, H, D_out = 64, 1000, 100, 10
 
-# Create random Tensors to hold input and outputs, and wrap them in Variables.
 # Setting requires_grad=False indicates that we do not need to compute gradients
 # with respect to these Variables during the backward pass.
 x = Variable(torch.randn(N, D_in).type(dtype), requires_grad=False)
 y = Variable(torch.randn(N, D_out).type(dtype), requires_grad=False)
 
-# Create random Tensors for weights, and wrap them in Variables.
 # Setting requires_grad=True indicates that we want to compute gradients with
 # respect to these Variables during the backward pass.
 w1 = Variable(torch.randn(D_in, H).type(dtype), requires_grad=True)
@@ -37,7 +32,7 @@ for t in range(500):
 
     # Use autograd to compute the backward pass. This call will compute the
     # gradient of loss with respect to all Variables with requires_grad=True.
-    # After this call w1.grad and w2.grad will be Variables holding the gradient
+    # After this call, w1.grad and w2.grad will be Variables holding the gradient
     # of the loss with respect to w1 and w2 respectively.
     loss.backward()
 
