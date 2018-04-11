@@ -3,10 +3,11 @@
     author: LongYinZ
     date: 2018.1.30
 """
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.image as mpimg
 from mpl_toolkits.mplot3d import Axes3D
+from file_utils import *
 
 # section 1 : sin and cosine using default settings
 X = np.linspace(-np.pi, np.pi, 256, endpoint=True)
@@ -105,18 +106,19 @@ Z = np.sin(R)
 ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='hot')
 plt.show()
 
-def draw_dev_train_loss(idx, loss_train, loss_dev):
+def draw_dev_train_loss(index, loss_train, loss_dev):
     # 工作目标：连接各个点作图
     plt.figure()
-    plt.plot(idx, loss_train, color="blue")
-    plt.plot(idx, loss_dev, color="red")
+    plt.plot(index, loss_train, color="blue")
+    # plt.plot(index, loss_dev, color="red")
     plt.title("loss_dev_train")
     plt.xlabel("epoch_")
     plt.ylabel("loss_")
     plt.show()
-
-
-idx = np.array([i for i in range(15)])
-y_train = np.array([10, 8, 7, 6, 5, 5, 4, 4, 3, 2, 1, 1, 0.5, 0.5, 0])  # 训练集上的loss分布
-y_dev = np.array([10, 8, 7, 6, 5, 5, 5, 6, 7, 8, 8, 9, 10, 12, 15])  # 验证集上面的loss分布
+y_train = load_data("../data/train_loss1.pkl")
+y_dev = load_data("../data/dev_loss1.pkl")
+idx = np.array([ix for ix in range(1, len(y_train)+1)])
+idx = idx * 50
+y_train = np.array(y_train)
+y_dev = np.array(y_dev)
 draw_dev_train_loss(idx, y_train, y_dev)
