@@ -1,10 +1,5 @@
 """
-View more, visit my tutorial page: https://morvanzhou.github.io/tutorials/
-My Youtube Channel: https://www.youtube.com/user/MorvanZhou
-Dependencies:
 torch: 0.1.11
-matplotlib
-torchvision
 """
 import torch
 from torch import nn
@@ -13,24 +8,22 @@ import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 
-
 # torch.manual_seed(1)    # reproducible
-
 # Hyper Parameters
-EPOCH = 1               # train the training data n times, to save time, we just train 1 epoch
+EPOCH = 10               # train the training data n times, to save time, we just train 1 epoch
 BATCH_SIZE = 64
 TIME_STEP = 28          # rnn time step / image height
 INPUT_SIZE = 28         # rnn input size / image width
 LR = 0.01               # learning rate
-DOWNLOAD_MNIST = True   # set to True if haven't download the data
-
+DOWNLOAD_MNIST = False   # set to True if haven't download the data
 
 # Mnist digital dataset
 train_data = dsets.MNIST(
-    root='./mnist/',
+    root='../data/mnist/',
     train=True,                         # this is training data
-    transform=transforms.ToTensor(),    # Converts a PIL.Image or numpy.ndarray to
-                                        # torch.FloatTensor of shape (C x H x W) and normalize in the range [0.0, 1.0]
+    transform=transforms.ToTensor(),
+    # Converts a PIL.Image or numpy.ndarray to torch.FloatTensor of shape (C x H x W) and normalize
+    # in the range [0.0, 1.0]
     download=DOWNLOAD_MNIST,            # download it if you don't have it
 )
 
@@ -45,7 +38,7 @@ plt.show()
 train_loader = torch.utils.data.DataLoader(dataset=train_data, batch_size=BATCH_SIZE, shuffle=True)
 
 # convert test data into Variable, pick 2000 samples to speed up testing
-test_data = dsets.MNIST(root='./mnist/', train=False, transform=transforms.ToTensor())
+test_data = dsets.MNIST(root='../data/mnist/', train=False, transform=transforms.ToTensor())
 test_x = Variable(test_data.test_data, volatile=True).type(torch.FloatTensor)[:2000]/255.   # shape (2000, 28, 28) value in range(0,1)
 test_y = test_data.test_labels.numpy().squeeze()[:2000]    # covert to numpy array
 
