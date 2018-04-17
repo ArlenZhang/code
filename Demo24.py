@@ -4,8 +4,8 @@ from torch.autograd import Variable
 class TwoLayerNet(torch.nn.Module):
     def __init__(self, D_in, H, D_out):
         """
-        In the constructor we instantiate two nn.Linear modules and assign them as
-        member variables.
+                In the constructor we instantiate two nn.Linear modules and assign
+            them as member variables.
         """
         super(TwoLayerNet, self).__init__()
         self.linear1 = torch.nn.Linear(D_in, H)
