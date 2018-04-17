@@ -2,7 +2,6 @@
 # Author: oisc <oisc@outlook.com>
 
 from collections import deque
-from interface import Model
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -13,8 +12,6 @@ import numpy as np
 import random
 import os
 import pickle
-from structure import RelationNode
-from structure.wrapper import BinarizeTreeWrapper
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,12 +20,22 @@ _UNK = '<UNK>'
 _DUMB = '<DUMB>'
 
 
+"""
+    描述： reduce自定义模块
+"""
 class Reducer(nn.Module):
     def __init__(self, hidden_size):
         nn.Module.__init__(self)
         self.hidden_size = hidden_size
         self.proj = nn.Linear(self.hidden_size * 2, self.hidden_size * 5)
 
+    """
+        描述： Reducer 的前馈过程
+        输入
+           左右孩子的向量信息
+        输出
+            reduce之后生成的新节点的表示 [h, c]  h is active_state. c is memory representation. 
+    """
     def forward(self, left, right):
         h1, c1 = left.chunk(2)
         h2, c2 = right.chunk(2)
@@ -38,6 +45,9 @@ class Reducer(nn.Module):
         return torch.cat([h, c])
 
 
+"""
+    描述： 
+"""
 class Tracker(nn.Module):
     def __init__(self, hidden_size):
         nn.Module.__init__(self)
@@ -72,72 +82,93 @@ class SPINN(nn.Module):
         self.edu_proj = nn.Linear(self.wordemb_size * 3, self.hidden_size * 2)
         self.trans_logits = nn.Linear(self.hidden_size, 1)
 
-    # 对新的会话初始化
+    """
+        描述: 为当前输入的篇章创建一个新的会话，前向移动过程中进行状态更新和参数学习.
+        输入
+            tree: 一个篇章的树对象的根节点输入
+        返回
+            当前的栈信息， 队列信息， tracking信息
+    """
     def new_session(self, tree):
         # 初始状态空栈中存在两个空数据
         stack = [Var(torch.zeros(self.hidden_size * 2)) for _ in range(2)]  # [dumb, dumb]
         # 初始化队列
         buffer = deque()
+        for edu in tree.edus():
+            buffer.append(self.edu_encode(edu, tree))  # 对edu进行编码
+        buffer.append(Var(torch.zeros(self.hidden_size * 2)))  # [edu, edu, ..., dumb]
+        tracker_init_state = (Var(torch.zeros(self.hidden_size)) for _ in range(2))
+        tracking = self.tracker(stack, buffer, tracker_init_state)
+        return stack, buffer, tracking
 
-    for edu in tree.edus():
-        buffer.append(self.edu_encode(edu, tree))  # 对edu进行编码
-    buffer.append(Var(torch.zeros(self.hidden_size * 2)))  # [edu, edu, ..., dumb]
-    tracker_init_state = (Var(torch.zeros(self.hidden_size)) for _ in range(2))
-    tracking = self.tracker(stack, buffer, tracker_init_state)
-    return stack, buffer, tracking
+    """
+        描述: 对会话的数据拷贝
+    """
+    def copy_session(self, session):
+        stack, buffer, tracking = session
+        stack_clone = [s.clone() for s in stack]
+        buffer_clone = [b.clone() for b in buffer]
+        h, c = tracking
+        tracking_clone = h.clone(), c.clone()
+        return stack_clone, buffer_clone, tracking_clone
+
+    """
+        描述: 对当前会话的当前状态计算score
+    """
+    def score(self, session):
+        stack, buffer, tracking = session
+        h, c = tracking
+        return nnfunc.sigmoid(self.trans_logits(h))
+
+    """
+        描述： 对给定的edu中的数据信息按照某种形式编码当前edu，当前是 0 1 -1首尾词获取对edu编码.
+        输入： 当前edu信息
+        返回： [h, c], h is active_state. c is memory representation. 不知道是个在这里怎么做，待查看
+    """
+    def edu_encode(self, edu, tree):
+        words = tree.words(edu.span)
+        if len(words) == 0:
+            return torch.zeros(self.hidden_size * 2)
+        elif len(words) == 1:
+            w1 = words[0]
+            w2 = _DUMB
+            w_1 = _DUMB
+        else:
+            w1 = words[0]
+            w2 = words[1]
+            w_1 = words[-1]
+        ids = [self.vocab[word] if word in self.vocab else self.vocab[_UNK] for word in [w1, w2, w_1]]
+        # if not edu:
+        #    pass
+        ids = Var(torch.LongTensor(ids))
+        emb = self.wordemb(ids).view(-1)
+        return self.edu_proj(emb)
+
+    """
+        描述： SPINN前馈开始
+        输入
+            session会话和当前操作transition shift or reduce
+        返回
+            最新的栈，队列，track信息
+    """
+    def forward(self, session, transition):
+        stack, buffer, tracking = session
+        if transition == self.SHIFT:
+            stack.append(buffer.popleft())
+        else:
+            s1 = stack.pop()
+            s2 = stack.pop()
+            compose = self.reducer(s2, s1)  # 调用 Reducer 的前馈过程，得到新节点的表示
+            stack.append(compose)
+
+        tracking = self.tracker(stack, buffer, tracking)  # 调用 Tracker 的前馈过程
+        return stack, buffer, tracking
 
 
-def score(self, session):
-    stack, buffer, tracking = session
-    h, c = tracking
-    return nnfunc.sigmoid(self.trans_logits(h))
-
-
-def copy_session(self, session):
-    stack, buffer, tracking = session
-    stack_clone = [s.clone() for s in stack]
-    buffer_clone = [b.clone() for b in buffer]
-    h, c = tracking
-    tracking_clone = h.clone(), c.clone()
-    return stack_clone, buffer_clone, tracking_clone
-
-
-# 只对edu的0 1 -1
-def edu_encode(self, edu, tree):
-    words = tree.words(edu.span)
-    if len(words) == 0:
-        return torch.zeros(self.hidden_size * 2)
-    elif len(words) == 1:
-        w1 = words[0]
-        w2 = _DUMB
-        w_1 = _DUMB
-    else:
-        w1 = words[0]
-        w2 = words[1]
-        w_1 = words[-1]
-    ids = [self.vocab[word] if word in self.vocab else self.vocab[_UNK] for word in [w1, w2, w_1]]
-    # if not edu:
-    #    pass
-    ids = Var(torch.LongTensor(ids))
-    emb = self.wordemb(ids).view(-1)
-    return self.edu_proj(emb)
-
-
-def forward(self, session, trans):
-    stack, buffer, tracking = session
-
-    if trans == self.SHIFT:  # SHIFT
-        stack.append(buffer.popleft())
-    else:  # REDUCE
-        s1 = stack.pop()
-        s2 = stack.pop()
-        compose = self.reducer(s2, s1)
-        stack.append(compose)
-    tracking = self.tracker(stack, buffer, tracking)  # 调用tarckerforward
-    return stack, buffer, tracking
-
-
-class SPINNSRModel(Model):
+"""
+    描述： SPINN的调用类封装
+"""
+class SPINN_SR:
     def __init__(self, args):
         self.args = args
         torch.manual_seed(self.args.seed)
@@ -156,6 +187,8 @@ class SPINNSRModel(Model):
             else:
                 wordemb_weights[vocab[word]] = wordemb[word]
         logger.log(logging.INFO, "loaded word embedding of vocabulary size %d" % len(vocab))
+
+        # 创建SPINN对象
         self.model = SPINN(args.spinn_hidden, vocab, wordemb_weights)
 
     def session(self, tree):
