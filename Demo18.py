@@ -35,3 +35,4 @@ for t in range(500):
     # Update weights
     w1 -= learning_rate * grad_w1
     w2 -= learning_rate * grad_w2
+
