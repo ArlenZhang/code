@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from file_utils import *
+from matplotlib.font_manager import FontProperties
 
 # section 1 : sin and cosine using default settings
 X = np.linspace(-np.pi, np.pi, 256, endpoint=True)
@@ -109,16 +110,20 @@ plt.show()
 def draw_dev_train_loss(index, loss_train, loss_dev):
     # 工作目标：连接各个点作图
     plt.figure()
-    plt.plot(index, loss_train, color="blue")
-    # plt.plot(index, loss_dev, color="red")
-    plt.title("loss_dev_train")
-    plt.xlabel("epoch_")
-    plt.ylabel("loss_")
+    plt.title("Loss of Training & Dev data")
+    plt.xlabel("epoch")
+    plt.ylabel("loss")
+    plt.plot(index, loss_train, "b", label="train_loss")
+    # plt.plot(index, loss_dev, "r", label="dev_loss")
+    plt.legend(bbox_to_anchor=[0.95, 1])
     plt.show()
-y_train = load_data("../data/train_loss1.pkl")
-y_dev = load_data("../data/dev_loss1.pkl")
+y_train = load_data("../data/train_loss_parsing2.pkl")
+y_train = y_train[1:]
+y_dev = load_data("../data/dev_loss_rst.pkl")
 idx = np.array([ix for ix in range(1, len(y_train)+1)])
-idx = idx * 50
+idx = idx * 100
+print(y_train)
 y_train = np.array(y_train)
+
 y_dev = np.array(y_dev)
 draw_dev_train_loss(idx, y_train, y_dev)
